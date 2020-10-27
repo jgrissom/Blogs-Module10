@@ -1,6 +1,7 @@
 ﻿using Blogs.Models;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Blogs.Controllers
 {
@@ -11,9 +12,9 @@ namespace Blogs.Controllers
         public HomeController(IBloggingRepository repo) => repository = repo;
 
         public IActionResult Index() => View(repository.Blogs.OrderBy(b => b.Name));
+        [Authorize(Roles = "moderate")]
         public IActionResult AddBlog() => View();
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize(Roles = "moderate"), ValidateAntiForgeryToken]
         public IActionResult AddBlog(Blog model)
         {
             if (ModelState.IsValid)
@@ -30,7 +31,7 @@ namespace Blogs.Controllers
             }
             return View();
         }
-
+        [Authorize(Roles = "moderate")]
         public IActionResult DeleteBlog(int id)
         {
             repository.DeleteBlog(repository.Blogs.FirstOrDefault(b => b.BlogId == id));
